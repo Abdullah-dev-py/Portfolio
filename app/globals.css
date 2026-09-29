@@ -1,0 +1,444 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-background: #FAF7F0;
+  --color-base: #FAF7F0;
+  --color-surface: #FAF7F0;
+  --color-line: rgba(0, 0, 0, 0.09);
+  --color-accent: #3C6E71;
+  --color-accent-hover: #2F585B;
+  --color-accent-ink: #2F585B;
+  --color-accent-dim: rgba(60, 110, 113, 0.12);
+
+  /* charcoal neutrals */
+  --color-stone-400: #A3A3A3;
+  --color-stone-500: #737373;
+  --color-stone-600: #525252;
+  --color-stone-700: #404040;
+  --color-stone-800: #353535;
+  --color-stone-900: #2B2B2B;
+  --color-stone-950: #353535;
+
+  /* shadcn tokens, mapped to the site palette (light only) */
+  --color-background: #FAF7F0;
+  --color-foreground: #353535;
+  --color-card: #FAF7F0;
+  --color-card-foreground: #353535;
+  --color-muted: #EFEFEF;
+  --color-muted-foreground: #616161;
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-destructive: #B3261E;
+}
+
+:root {
+  --background: #FAF7F0;
+  --card: #FAF7F0;
+  --foreground: #353535;
+  --muted: #EFEFEF;
+  --muted-foreground: #616161;
+  --border: rgba(0, 0, 0, 0.1);
+  --destructive: #B3261E;
+  --chart-1: #3C6E71;
+  --chart-2: #284B63;
+  --chart-3: #D9D9D9;
+  --chart-4: #7FB3B5;
+  --chart-5: #616161;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #FAF7F0;
+  color: #353535;
+  overflow-x: clip;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(60, 110, 113, 0.25);
+  color: #353535;
+}
+
+:focus-visible {
+  outline: 2px solid #3C6E71;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.hairline {
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* ---- work page motion (runs only when motion is welcome) ---- */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes wv-marquee {
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+  .wv-marquee {
+    animation: wv-marquee 24s linear infinite;
+  }
+  @keyframes wv-blink {
+    0%,
+    100% {
+      opacity: 0.25;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  .wv-blink {
+    animation: wv-blink 1.4s ease-in-out infinite;
+  }
+  @keyframes wv-bar {
+    0%,
+    100% {
+      transform: scaleY(0.5);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+  .wv-bar {
+    transform-origin: bottom;
+    animation: wv-bar 2.6s ease-in-out infinite;
+  }
+  @keyframes wv-pingdot {
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.8);
+      opacity: 0.5;
+    }
+  }
+  .wv-pingdot {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: wv-pingdot 1.8s ease-in-out infinite;
+  }
+  @keyframes wv-orbit {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .wv-orbit {
+    animation: wv-orbit 7s linear infinite;
+  }
+  @keyframes wv-scan {
+    0% {
+      transform: translateY(-10%);
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(320%);
+      opacity: 0;
+    }
+  }
+  .wv-scan {
+    animation: wv-scan 4s ease-in-out infinite;
+  }
+  @keyframes wv-flow-x {
+    to {
+      background-position-x: 24px;
+    }
+  }
+  .wv-flow-x {
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--color-accent-ink) 0 6px,
+      transparent 6px 12px
+    );
+    background-size: 24px 2px;
+    background-repeat: repeat-x;
+    background-position: center;
+    animation: wv-flow-x 1s linear infinite;
+    opacity: 0.6;
+  }
+  @keyframes wv-flow-y {
+    to {
+      background-position-y: 24px;
+    }
+  }
+  .wv-flow-y {
+    background-image: repeating-linear-gradient(
+      0deg,
+      var(--color-accent-ink) 0 6px,
+      transparent 6px 12px
+    );
+    background-size: 2px 24px;
+    background-repeat: repeat-y;
+    background-position: center;
+    animation: wv-flow-y 1s linear infinite;
+    opacity: 0.6;
+  }
+
+  /* ---- mini workflow runner (AdsArt): trigger → output execution loop ---- */
+  @keyframes wv-dash-flow {
+    to {
+      stroke-dashoffset: -12;
+    }
+  }
+  .wv-dash-flow {
+    stroke-dasharray: 4 8;
+    animation: wv-dash-flow 1s linear infinite;
+  }
+  @keyframes wv-node-card {
+    0%,
+    100% {
+      fill: #ffffff;
+      stroke: rgba(0, 0, 0, 0.1);
+    }
+    2%,
+    12% {
+      fill: rgba(60, 110, 113, 0.12);
+      stroke: rgba(60, 110, 113, 0.55);
+    }
+    15% {
+      fill: #ffffff;
+      stroke: rgba(0, 0, 0, 0.1);
+    }
+  }
+  .wv-node-card {
+    animation: wv-node-card 6s ease-in-out infinite;
+  }
+  @keyframes wv-node-icon {
+    0%,
+    100% {
+      color: #616161;
+    }
+    2%,
+    12% {
+      color: #2f585b;
+    }
+    15% {
+      color: #616161;
+    }
+  }
+  .wv-node-icon {
+    animation: wv-node-icon 6s ease-in-out infinite;
+  }
+  @keyframes wv-node-ring {
+    0% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    2% {
+      opacity: 0.7;
+    }
+    13% {
+      opacity: 0;
+      transform: scale(1.55);
+    }
+    14%,
+    100% {
+      opacity: 0;
+    }
+  }
+  .wv-node-ring {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: wv-node-ring 6s ease-out infinite;
+  }
+
+  /* ---- typing dots (chat send loop): soft bounce, staggered ---- */
+  @keyframes wv-typing-dot {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.5;
+    }
+    30% {
+      transform: translateY(-3px);
+      opacity: 1;
+    }
+  }
+  .wv-typing-dot {
+    animation: wv-typing-dot 1s ease-in-out infinite;
+  }
+
+  /* ---- ambient background field: related-color gradients, slow drift ---- */
+  @keyframes wv-drift-a {
+    from {
+      transform: translate(0, 0);
+    }
+    to {
+      transform: translate(6vw, 5vh);
+    }
+  }
+  @keyframes wv-drift-b {
+    from {
+      transform: translate(0, 0);
+    }
+    to {
+      transform: translate(-7vw, -4vh);
+    }
+  }
+  .wv-ambient-a {
+    background: radial-gradient(circle, rgba(60, 110, 113, 0.12) 0%, transparent 65%);
+    animation: wv-drift-a 28s ease-in-out infinite alternate;
+  }
+  .wv-ambient-b {
+    background: radial-gradient(circle, rgba(40, 75, 99, 0.1) 0%, transparent 65%);
+    animation: wv-drift-b 34s ease-in-out infinite alternate;
+  }
+  .wv-ambient-c {
+    background: radial-gradient(circle, rgba(127, 179, 181, 0.14) 0%, transparent 65%);
+    animation: wv-drift-a 24s ease-in-out infinite alternate-reverse;
+  }
+
+  /* ---- site-wide dotted field: faint grid, slow seamless drift ---- */
+  @keyframes wv-dots-drift {
+    to {
+      transform: translate(22px, 22px);
+    }
+  }
+  .wv-dots-bg {
+    background-image: radial-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+    background-size: 22px 22px;
+    animation: wv-dots-drift 12s linear infinite;
+  }
+
+  /* ---- self-assembling blocks (WebMock): staggered build → hold → dissolve ---- */
+  @keyframes wv-arrange {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    8%,
+    68% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    78%,
+    100% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+  .wv-arrange {
+    animation: wv-arrange 6s ease-in-out infinite;
+  }
+
+  /* ---- self-drawing sparkline (DataSpark): draw → hold → fade → redraw ---- */
+  @keyframes wv-spark-draw {
+    0% {
+      stroke-dashoffset: 1;
+      opacity: 1;
+    }
+    55%,
+    72% {
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+    82%,
+    100% {
+      stroke-dashoffset: 0;
+      opacity: 0;
+    }
+  }
+  .wv-spark-draw {
+    stroke-dasharray: 1;
+    animation: wv-spark-draw 5s ease-in-out infinite;
+  }
+  @keyframes wv-spark-dot {
+    0%,
+    52% {
+      opacity: 0;
+    }
+    60%,
+    72% {
+      opacity: 1;
+    }
+    82%,
+    100% {
+      opacity: 0;
+    }
+  }
+  .wv-spark-dot {
+    animation: wv-spark-dot 5s ease-in-out infinite;
+  }
+
+  /* ---- pie opening (WorkMixChart): wedges pop open in sequence, then static ---- */
+  @keyframes wv-pie-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  .wv-pie-in {
+    animation: wv-pie-in 0.4s ease backwards;
+  }
+  @keyframes wv-pie-wedge {
+    from {
+      opacity: 0;
+      transform: scale(0.55);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .wv-pie-in .recharts-pie-sector {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: wv-pie-wedge 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  }
+  .wv-pie-in .recharts-pie-sector:nth-child(1) {
+    animation-delay: 0.1s;
+  }
+  .wv-pie-in .recharts-pie-sector:nth-child(2) {
+    animation-delay: 0.25s;
+  }
+  .wv-pie-in .recharts-pie-sector:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  @keyframes wv-rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .wv-rise {
+    animation: wv-rise 0.5s ease backwards;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
