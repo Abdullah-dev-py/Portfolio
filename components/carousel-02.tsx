@@ -27,57 +27,57 @@ const details = [
     icon: ChartBar,
     title: "Manual reporting eats the week",
     description:
-      "Monthly SEO and client reports pulled by hand. I replace that with scheduled pulls, month-over-month math, and client-ready output.",
-    tags: ["Scheduled pulls", "MoM math", "Client-ready"],
+      "Monthly SEO and client reports pulled by hand become scheduled pulls with month-over-month math, sent on schedule.",
+    flow: ["Client sheets", "scheduled pull", "delivered report"],
   },
   {
     icon: ChatsCircle,
     title: "Support repeats the same answers",
     description:
-      "Order status, stock, claims — asked all day. I build chat agents that handle the full flow and bring a human in only when needed.",
-    tags: ["24/7 replies", "Orders + claims", "Human handoff"],
+      "Order status, stock, claims: chat agents answer all day and bring a human in only when needed.",
+    flow: ["Customer asks", "agent replies", "human if needed"],
   },
   {
     icon: Scales,
     title: "Retainers leak on small extras",
     description:
-      "Five-minute requests that add up to unpaid days. I track work against scope so out-of-scope is visible before margin is gone.",
-    tags: ["Scope log", "Overrun flags"],
+      "Five-minute extras add up to unpaid days. Work is tracked against scope so overruns surface early.",
+    flow: ["New request", "scope check", "flag to client"],
   },
   {
     icon: Eye,
     title: "Owners fly blind day to day",
     description:
-      "Sales, inventory and claims live in three places. I send one morning summary with what changed and what to do next.",
-    tags: ["One summary", "Next actions"],
+      "Sales, stock and claims live in three places. One morning summary: what changed, what to do next.",
+    flow: ["Daily numbers", "morning digest", "next actions"],
   },
   {
     icon: Lightning,
     title: "Leads go cold in minutes",
     description:
-      "Ad leads get a WhatsApp message with two qualifying questions the moment they arrive. Hot ones go straight to sales.",
-    tags: ["Instant outreach", "Lead scoring", "Sales handoff"],
+      "Ad leads get two qualifying questions the minute they arrive. Hot ones go straight to sales.",
+    flow: ["Lead lands", "auto qualifier", "sales alert"],
   },
   {
     icon: Receipt,
-    title: "Payment proof, matched by hand",
+    title: "Invoice payments verified automatically",
     description:
-      "Clients send payment screenshots on WhatsApp. The amounts get read, matched to open invoices, and marked for verify.",
-    tags: ["Screenshot reading", "Auto-match", "Verify"],
+      "Transfer proofs are read and matched to open invoices automatically. Unclear ones get flagged.",
+    flow: ["Payment proof", "auto match", "flag if unclear"],
   },
   {
     icon: CalendarCheck,
     title: "No-shows leave paid slots empty",
     description:
-      "Confirmations go out morning and evening, reschedules happen on WhatsApp, and freed slots go straight to a waitlist.",
-    tags: ["Confirmations", "Rescheduling", "Waitlist fill"],
+      "Confirmations go out twice daily, reschedules stay in one thread, freed slots go to a waitlist.",
+    flow: ["Booking", "confirmations", "waitlist refill"],
   },
   {
     icon: Package,
-    title: "Cash orders come back unopened",
+    title: "Unconfirmed orders never ship",
     description:
-      "Every cash-on-delivery order gets a WhatsApp confirmation before dispatch. Unconfirmed parcels never ship.",
-    tags: ["COD confirm", "Address check", "Dispatch list"],
+      "Every order gets a pre-dispatch confirmation. Unconfirmed orders are held, not shipped.",
+    flow: ["New order", "confirmation", "ship or hold"],
   },
 ];
 
@@ -159,41 +159,47 @@ export default function Component() {
             className={cn("h-full pl-4 basis-[92%] sm:basis-[68%] lg:basis-[46%]")}
           >
             <div data-curve className="h-full will-change-transform">
-            <Card className={`h-full w-full gap-0 overflow-hidden border-black/10 bg-[#F8F4EB] py-0 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_16px_40px_-16px_rgba(0,0,0,0.08),0_40px_80px_-40px_rgba(0,0,0,0.10)] transition-all duration-500 hover:-translate-y-1 ${isActive ? "border-accent/50" : ""} min-h-[300px] sm:aspect-video sm:min-h-0`}>
-              <CardContent className={`@container flex h-full min-h-0 flex-col p-[3.5cqw] transition-opacity duration-500 ${isActive ? "opacity-100" : "opacity-70"}`}>
+            <Card className={`h-full w-full gap-0 overflow-hidden border-black/10 bg-[#F8F4EB] py-0 shadow-[0_1px_2px_rgba(0,0,0,0.05),0_16px_40px_-16px_rgba(0,0,0,0.08),0_40px_80px_-40px_rgba(0,0,0,0.10)] transition-all duration-500 hover:-translate-y-1 ${isActive ? "border-accent/50" : ""} min-h-[320px] sm:aspect-video sm:min-h-0`}>
+              <CardContent className={`@container flex h-full min-h-0 flex-col p-[3.5cqw] transition-opacity duration-500 ${isActive ? "opacity-100" : "opacity-50"}`}>
                 <div className="flex items-center justify-between gap-[2cqw]">
                   <p
                     aria-hidden="true"
-                    className="font-mono text-[max(3.4cqw,13px)] text-accent-ink"
+                    className="font-mono text-[max(3.6cqw,13px)] text-accent-ink"
                   >
                     {pad(index + 1)}
                   </p>
                   <span
                     aria-hidden="true"
-                    className="flex size-[max(8.5cqw,40px)] items-center justify-center rounded-[max(2.5cqw,10px)] bg-accent/10 text-accent-ink"
+                    className={`flex size-[max(8.5cqw,40px)] items-center justify-center rounded-[max(2.5cqw,10px)] transition-colors duration-500 ${
+                      isActive
+                        ? "bg-stone-950 text-[#FAF7F0]"
+                        : "bg-accent/10 text-accent-ink"
+                    }`}
                   >
                     <item.icon size={24} className="h-[58%] w-[58%]" />
                   </span>
                 </div>
-                <h3 className="mt-[2cqw] min-h-[2.4em] text-[max(5.2cqw,19px)] font-semibold leading-[1.18] tracking-tight text-stone-900 sm:line-clamp-2">
+                <h3 className="mt-[2cqw] min-h-[2.4em] text-[max(5.2cqw,20px)] font-semibold leading-[1.18] tracking-tight text-stone-900 sm:line-clamp-2">
                   {item.title}
                 </h3>
                 <p className="mt-[1.5cqw] min-h-[3em] text-[max(4.1cqw,15px)] leading-[1.5] text-stone-600 sm:line-clamp-2">
                   {item.description}
                 </p>
-                <ul
-                  aria-label="What you get"
-                  className="mt-auto flex flex-wrap gap-[1.5cqw] overflow-hidden pt-[2cqw]"
+                <ol
+                  aria-label="How the build flows"
+                  className="mt-auto flex flex-wrap items-center gap-x-[1.5cqw] gap-y-[1cqw] pt-[2.5cqw] font-mono text-[max(2.9cqw,11px)] leading-snug text-accent-ink"
                 >
-                  {item.tags.map((tag) => (
-                    <li
-                      key={tag}
-                      className="rounded-full border border-black/10 bg-black/[0.04] px-[2.5cqw] py-[0.9cqw] font-mono text-[max(3.2cqw,12px)] leading-snug text-stone-600"
-                    >
-                      {tag}
-                    </li>
+                  {item.flow.map((step, si) => (
+                    <React.Fragment key={step}>
+                      {si > 0 && (
+                        <span aria-hidden="true" className="text-stone-400">
+                          →
+                        </span>
+                      )}
+                      <li className="whitespace-nowrap">{step}</li>
+                    </React.Fragment>
                   ))}
-                </ul>
+                </ol>
               </CardContent>
             </Card>
             </div>
@@ -201,11 +207,22 @@ export default function Component() {
           );
         })}
       </CarouselContent>
-      <div className="mt-1 flex items-center justify-center gap-3">
+      <div className="mt-1 flex items-center justify-center gap-4">
         <CarouselPrevious className="static top-auto left-auto size-11 translate-x-0 translate-y-0" />
-        <p aria-live="polite" className="font-mono text-xs text-stone-600">
-          {pad(current + 1)} / {pad(details.length)}
-        </p>
+        <div className="flex items-center gap-3">
+          <div
+            aria-hidden="true"
+            className="h-1 w-20 overflow-hidden rounded-full bg-black/10 sm:w-28"
+          >
+            <div
+              className="h-full rounded-full bg-accent transition-[width] duration-500"
+              style={{ width: `${((current + 1) / details.length) * 100}%` }}
+            />
+          </div>
+          <p aria-live="polite" className="font-mono text-xs text-stone-600">
+            {pad(current + 1)} / {pad(details.length)}
+          </p>
+        </div>
         <CarouselNext className="static top-auto right-auto size-11 translate-x-0 translate-y-0" />
       </div>
     </Carousel>

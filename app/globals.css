@@ -320,66 +320,6 @@ body {
     animation: wv-dots-drift 12s linear infinite;
   }
 
-  /* ---- self-assembling blocks (WebMock): staggered build → hold → dissolve ---- */
-  @keyframes wv-arrange {
-    0% {
-      opacity: 0;
-      transform: translateY(6px);
-    }
-    8%,
-    68% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    78%,
-    100% {
-      opacity: 0;
-      transform: translateY(-4px);
-    }
-  }
-  .wv-arrange {
-    animation: wv-arrange 6s ease-in-out infinite;
-  }
-
-  /* ---- self-drawing sparkline (DataSpark): draw → hold → fade → redraw ---- */
-  @keyframes wv-spark-draw {
-    0% {
-      stroke-dashoffset: 1;
-      opacity: 1;
-    }
-    55%,
-    72% {
-      stroke-dashoffset: 0;
-      opacity: 1;
-    }
-    82%,
-    100% {
-      stroke-dashoffset: 0;
-      opacity: 0;
-    }
-  }
-  .wv-spark-draw {
-    stroke-dasharray: 1;
-    animation: wv-spark-draw 5s ease-in-out infinite;
-  }
-  @keyframes wv-spark-dot {
-    0%,
-    52% {
-      opacity: 0;
-    }
-    60%,
-    72% {
-      opacity: 1;
-    }
-    82%,
-    100% {
-      opacity: 0;
-    }
-  }
-  .wv-spark-dot {
-    animation: wv-spark-dot 5s ease-in-out infinite;
-  }
-
   /* ---- pie opening (WorkMixChart): wedges pop open in sequence, then static ---- */
   @keyframes wv-pie-in {
     from {

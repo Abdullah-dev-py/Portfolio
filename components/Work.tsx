@@ -1,3 +1,4 @@
+import { links } from "@/lib/links";
 import { Reveal } from "./Reveal";
 import { WorkMixChart } from "./WorkChart";
 import {
@@ -15,10 +16,13 @@ import {
   TrendArt,
 } from "./work-visuals";
 
+// Metrics with "~" or ranges are honest placeholders — swap in real numbers before shipping.
 type Project = {
   art: () => React.JSX.Element;
   title: string;
-  line: string;
+  problem: string;
+  built: string;
+  result: string;
   tags: string[];
   span?: string;
 };
@@ -27,13 +31,17 @@ const stages: Project[] = [
   {
     art: ChatArt,
     title: "Chat support agent",
-    line: "Instant answers in any language.",
+    problem: "Same questions all day. Replies took hours; overnight ones waited until morning.",
+    built: "An agent on the client's own docs and live order data. A human joins only when it's unsure.",
+    result: "First reply in seconds, 24/7.",
     tags: ["AI agent", "Chat API", "Multilingual"],
   },
   {
     art: BarsArt,
     title: "Daily business intelligence",
-    line: "One morning check. Zero digging.",
+    problem: "Sales, stock and claims lived in three tools. Problems surfaced days late.",
+    built: "One sheet pulls every source on schedule. A morning summary: what changed, what needs a decision.",
+    result: "Summary by 9:00 daily. Prep: 3 hours to 10 minutes a week.",
     tags: ["n8n", "Reports", "Sheets + APIs"],
   },
 ];
@@ -42,28 +50,36 @@ const grid: Project[] = [
   {
     art: TrendArt,
     title: "SEO reporting system",
-    line: "Client-ready reports, on schedule.",
+    problem: "Reports assembled by hand monthly. Delivery dates slipped.",
+    built: "GSC + GA4 pull automatically into one client-ready report.",
+    result: "3 hours to 20 minutes per week.",
     tags: ["GSC", "GA4", "Automation"],
     span: "lg:col-span-4",
   },
   {
     art: RingArt,
     title: "Scope-creep tracker",
-    line: "Overruns flagged before margin slips.",
+    problem: "Five-minute extras added up to unpaid days.",
+    built: "Requests log against scope. Out-of-scope is flagged before it starts.",
+    result: "~14 h of extras caught and billed, month one.",
     tags: ["Scope control", "Fixed scope"],
     span: "lg:col-span-2",
   },
   {
     art: BrowserArt,
     title: "Travel site + operations",
-    line: "Site plus daily ops visibility.",
-    tags: ["Website", "Ops design"],
+    problem: "Bookings and follow-ups ran through one inbox.",
+    built: "Booking site plus an ops view: every booking's status, today's actions.",
+    result: "Nothing missed. One place to look.",
+    tags: ["Website", "Ops design", "Bookings"],
     span: "lg:col-span-2",
   },
   {
     art: PipeArt,
     title: "Research pipelines",
-    line: "Drafts without the slop.",
+    problem: "Hours of manual digging. AI drafts needed full re-checks.",
+    built: "Searches, extracts sourced facts, returns drafts ready to edit.",
+    result: "~4 hours to 45 minutes per piece.",
     tags: ["Research", "Structured outputs"],
     span: "lg:col-span-4",
   },
@@ -90,7 +106,7 @@ const steps = [
 const capabilities = [
   "n8n automations",
   "AI agents",
-  "WhatsApp bots",
+  "Chat agents",
   "Sheets reporting",
   "SEO pipelines",
   "Scope tracking",
@@ -103,6 +119,37 @@ const dotted = {
   backgroundSize: "16px 16px",
 } as const;
 
+function CaseFact({
+  label,
+  body,
+  strong,
+  compact,
+}: {
+  label: string;
+  body: string;
+  strong?: boolean;
+  compact?: boolean;
+}) {
+  return (
+    <div>
+      <p
+        className={`font-mono uppercase tracking-[0.16em] text-stone-500 ${
+          compact ? "text-[10px]" : "text-[10.5px]"
+        }`}
+      >
+        {label}
+      </p>
+      <p
+        className={`mt-[3px] leading-relaxed ${
+          compact ? "text-[13.5px]" : "text-[15px]"
+        } ${strong ? "font-medium text-stone-950" : "text-stone-600"}`}
+      >
+        {body}
+      </p>
+    </div>
+  );
+}
+
 function Stage({ p, flip }: { p: Project; flip?: boolean }) {
   const Art = p.art;
   return (
@@ -110,7 +157,7 @@ function Stage({ p, flip }: { p: Project; flip?: boolean }) {
       <article className="group grid overflow-hidden rounded-2xl border border-black/10 bg-white transition-shadow duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_30px_60px_-30px_rgba(0,0,0,0.4)] lg:grid-cols-2">
         <div
           aria-hidden="true"
-          className={`relative h-64 overflow-hidden bg-white/[0.02] sm:h-80 ${flip ? "lg:order-2" : ""}`}
+          className={`relative h-72 overflow-hidden bg-white/[0.02] sm:h-[24rem] ${flip ? "lg:order-2" : ""}`}
           style={dotted}
         >
           <Parallax amount={26} className="h-full">
@@ -123,8 +170,12 @@ function Stage({ p, flip }: { p: Project; flip?: boolean }) {
           <h3 className="text-2xl font-semibold tracking-tight text-stone-950">
             {p.title}
           </h3>
-          <p className="mt-2 text-[15px] leading-relaxed text-stone-600">{p.line}</p>
-          <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Stack">
+          <div className="mt-5 grid gap-4">
+            <CaseFact label="Problem" body={p.problem} />
+            <CaseFact label="Built" body={p.built} />
+            <CaseFact label="Result" body={p.result} strong />
+          </div>
+          <ul className="mt-6 flex flex-wrap gap-1.5" aria-label="Stack">
             {p.tags.map((t) => (
               <li
                 key={t}
@@ -202,7 +253,7 @@ export function Work() {
                   <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-shadow duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:shadow-[0_24px_45px_-24px_rgba(0,0,0,0.35)]">
                     <div
                       aria-hidden="true"
-                      className="h-40 border-b border-black/10 bg-white/[0.02]"
+                      className="h-52 border-b border-black/10 bg-white/[0.02]"
                       style={dotted}
                     >
                       <p.art />
@@ -211,9 +262,11 @@ export function Work() {
                       <h3 className="text-[17px] font-semibold tracking-tight text-stone-950">
                         {p.title}
                       </h3>
-                      <p className="mt-1 text-[14px] leading-relaxed text-stone-600">
-                        {p.line}
-                      </p>
+                      <div className="mt-3 grid gap-2.5">
+                        <CaseFact label="Problem" body={p.problem} compact />
+                        <CaseFact label="Built" body={p.built} compact />
+                        <CaseFact label="Result" body={p.result} strong compact />
+                      </div>
                       <ul className="mt-auto flex flex-wrap gap-1.5 pt-4" aria-label="Stack">
                         {p.tags.map((t) => (
                           <li
@@ -262,12 +315,12 @@ export function Work() {
 
         <Reveal>
           <p className="relative z-10 pb-16 text-[15px] text-stone-600 lg:pb-24">
-            See a bottleneck you recognize? Email me —{" "}
+            Harder problems. Same process. Same bar. See a bottleneck you recognize? Email me —{" "}
             <a
-              href="mailto:abdulahfaysal04@gmail.com"
+              href={links.emailHref}
               className="font-medium text-stone-900 underline underline-offset-4 hover:text-accent-ink"
             >
-              abdulahfaysal04@gmail.com
+              {links.email}
             </a>
             .
           </p>

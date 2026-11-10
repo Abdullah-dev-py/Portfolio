@@ -268,7 +268,10 @@ export const FluidParticlesBackground = ({
         className,
       )}
     >
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 h-full w-full opacity-60 blur-[2px] [mask-image:radial-gradient(ellipse_85%_80%_at_50%_50%,#000_55%,transparent_100%)] [-webkit-mask-image:radial-gradient(ellipse_85%_80%_at_50%_50%,#000_55%,transparent_100%)]"
+      />
 
       <div className="relative z-10 flex h-full w-full items-center justify-center">
         {children}

@@ -52,7 +52,7 @@ export function Nav() {
           <span className="block text-[15px] font-semibold tracking-tight text-stone-950">
             Abdullah
           </span>
-          <span className="block text-[11px] text-stone-600">Agentic AI Engineer</span>
+          <span className="block text-[11px] text-stone-600">Automation &amp; web systems</span>
         </Link>
         <div className="hidden items-center gap-1 md:flex">
           <p className="mr-3 flex items-center gap-2 text-[13px] text-stone-600">

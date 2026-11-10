@@ -65,14 +65,38 @@ export function Tilt({
 /* ---------------- capability marquee (single, slow) ---------------- */
 
 export function Marquee({ items, duration = "24s" }: { items: string[]; duration?: string }) {
+  const copyRef = useRef<HTMLDivElement>(null);
+  const [copies, setCopies] = useState(4);
+
+  useEffect(() => {
+    const measure = () => {
+      const w = copyRef.current?.offsetWidth ?? 0;
+      if (!w) return;
+      const needed = Math.ceil((window.innerWidth * 2) / w);
+      setCopies(Math.max(2, needed % 2 === 0 ? needed : needed + 1));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (copyRef.current) ro.observe(copyRef.current);
+    window.addEventListener("resize", measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, []);
+
   return (
     <div aria-hidden="true" className="overflow-hidden border-y border-black/10 py-3 select-none">
       <div
         className="wv-marquee flex w-max will-change-transform"
         style={{ animationDuration: duration }}
       >
-        {[0, 1].map((half) => (
-          <div key={half} className="flex shrink-0 items-center">
+        {Array.from({ length: copies }, (_, half) => (
+          <div
+            key={half}
+            ref={half === 0 ? copyRef : undefined}
+            className="flex shrink-0 items-center"
+          >
             {items.map((t) => (
               <span
                 key={`${half}-${t}`}
@@ -91,21 +115,167 @@ export function Marquee({ items, duration = "24s" }: { items: string[]; duration
 
 /* ---------------- mini system diagrams (pure SVG/CSS, looping) ---------------- */
 
+/* Stage chat: endless support conveyor inside a messenger frame.
+   A typing bubble slides in on the sender's side every beat, then pops into
+   its message while the oldest message slides up through the fade mask.
+   No reset frame — messages keep arriving, one after another. */
+type SupportMsg = { text: string; mine: boolean };
+const SUPPORT_SCRIPT: SupportMsg[] = [
+  { text: "Where is my order #2141?", mine: false },
+  { text: "It ships today, arriving Thursday.", mine: true },
+  { text: "Can I change the address?", mine: false },
+  { text: "Done — updating it now.", mine: true },
+  { text: "Great, thanks!", mine: false },
+  { text: "Anything else, I'm here 24/7.", mine: true },
+  { text: "When does tracking arrive?", mine: false },
+  { text: "Tonight, by email.", mine: true },
+];
+type SupportItem = { id: number; kind: "msg" | "typing"; m: SupportMsg };
+const CHAT_PITCH = 46; // h-10 bubble + 6px gap
+
+function supportCls(m: SupportMsg) {
+  return m.mine
+    ? "ml-auto rounded-xl rounded-br-[4px] bg-[#284B63]"
+    : "rounded-xl rounded-bl-[4px] border border-black/10 bg-white";
+}
+
 export function ChatArt() {
-  return (
-    <div aria-hidden="true" className="flex h-full flex-col justify-center gap-2.5 p-5">
-      <div className="w-2/3 space-y-1.5 rounded-xl rounded-bl-sm bg-[#284B63] p-3">
-        <div className="h-1.5 w-4/5 rounded bg-white/70" />
-        <div className="h-1.5 w-3/5 rounded bg-white/40" />
+  const reduce = useReducedMotion();
+  const [items, setItems] = useState<SupportItem[]>([
+    { id: 0, kind: "msg", m: SUPPORT_SCRIPT[0] },
+    { id: 1, kind: "msg", m: SUPPORT_SCRIPT[1] },
+    { id: 2, kind: "msg", m: SUPPORT_SCRIPT[2] },
+    { id: 3, kind: "msg", m: SUPPORT_SCRIPT[3] },
+  ]);
+  const [sliding, setSliding] = useState(false);
+  const nextId = useRef(4);
+
+  useEffect(() => {
+    if (reduce) return;
+    let timeout = 0;
+    const iv = window.setInterval(() => {
+      const id = nextId.current++;
+      const m = SUPPORT_SCRIPT[id % SUPPORT_SCRIPT.length];
+      // typing bubble slides in on the sender's side…
+      setItems((prev) => [...prev, { id, kind: "typing", m }]);
+      setSliding(true);
+      timeout = window.setTimeout(() => {
+        // …then the sent text pops in as the top message slides away
+        setItems((prev) => prev.slice(1).map((it) => (it.id === id ? { ...it, kind: "msg" } : it)));
+        setSliding(false);
+      }, 640);
+    }, 2700);
+    return () => {
+      window.clearInterval(iv);
+      window.clearTimeout(timeout);
+    };
+  }, [reduce]);
+
+  if (reduce) {
+    return (
+      <div aria-hidden="true" className="flex h-full items-center justify-center px-4 py-6 sm:px-6">
+        <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_18px_44px_-26px_rgba(0,0,0,0.28)]">
+          <div className="flex items-center gap-2.5 border-b border-black/10 bg-white px-4 py-2.5">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#284B63] font-mono text-[10px] font-semibold text-white">
+              C
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-[12px] font-semibold leading-none text-stone-900">
+                Customer
+              </p>
+              <p className="mt-1 flex items-center gap-1.5 text-[10px] leading-none text-stone-500">
+                <span className="size-1.5 rounded-full bg-accent" />
+                online
+              </p>
+            </div>
+            <span className="ml-auto shrink-0 rounded-full border border-black/10 bg-black/[0.04] px-2 py-0.5 font-mono text-[10px] text-stone-600">
+              AI agent
+            </span>
+          </div>
+          <div className="flex h-48 flex-col gap-1.5 px-3.5 pb-4 pt-3 sm:h-56">
+            {SUPPORT_SCRIPT.slice(0, 4).map((m) => (
+              <div key={m.text} className={`${supportCls(m)} flex h-10 items-center px-3`}>
+                <span
+                  className={`whitespace-nowrap text-[11px] font-medium leading-none ${
+                    m.mine ? "text-white" : "text-stone-700"
+                  }`}
+                >
+                  {m.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-      <div className="ml-auto flex w-1/2 items-center gap-1.5 rounded-xl rounded-br-sm bg-accent px-3 py-3">
-        {[0, 1, 2].map((d) => (
-          <span
-            key={d}
-            className="wv-blink size-1.5 rounded-full bg-white"
-            style={{ animationDelay: `${d * 0.18}s` }}
-          />
-        ))}
+    );
+  }
+
+  return (
+    <div aria-hidden="true" className="flex h-full items-center justify-center px-4 py-6 sm:px-6">
+      <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_18px_44px_-26px_rgba(0,0,0,0.28)]">
+        <div className="flex items-center gap-2.5 border-b border-black/10 bg-white px-4 py-2.5">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#284B63] font-mono text-[10px] font-semibold text-white">
+            C
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[12px] font-semibold leading-none text-stone-900">
+              Customer
+            </p>
+            <p className="mt-1 flex items-center gap-1.5 text-[10px] leading-none text-accent-ink">
+              <span className="wv-blink size-1.5 rounded-full bg-accent" />
+              online
+            </p>
+          </div>
+          <span className="ml-auto shrink-0 rounded-full border border-black/10 bg-black/[0.04] px-2 py-0.5 font-mono text-[10px] text-stone-600">
+            AI agent
+          </span>
+        </div>
+        <div className="h-48 overflow-hidden px-3.5 pb-4 pt-2 sm:h-56">
+          <div
+            className="flex flex-col gap-1.5"
+            style={{
+              transform: sliding ? `translateY(-${CHAT_PITCH}px)` : "translateY(0)",
+              transition: sliding ? "transform 640ms cubic-bezier(0.16,1,0.3,1)" : "none",
+            }}
+          >
+            {items.map((it) => (
+              <div key={it.id} className="flex">
+                <div className={`${supportCls(it.m)} relative flex h-10 w-fit items-center`}>
+                  {/* message text — in flow, defines the bubble's width */}
+                  <div
+                    className={`flex items-center px-3 transition-all duration-300 ${
+                      it.kind === "typing" ? "scale-95 opacity-0" : "scale-100 opacity-100"
+                    }`}
+                  >
+                    <span
+                      className={`whitespace-nowrap text-[11px] font-medium leading-none ${
+                        it.m.mine ? "text-white" : "text-stone-700"
+                      }`}
+                    >
+                      {it.m.text}
+                    </span>
+                  </div>
+                  {/* typing indicator — same slot, side-colored dots */}
+                  <div
+                    className={`absolute inset-0 flex items-center px-3 transition-opacity duration-300 ${
+                      it.kind === "typing" ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {[0, 1, 2].map((d) => (
+                      <span
+                        key={d}
+                        className={`wv-typing-dot size-1.5 rounded-full ${
+                          it.m.mine ? "bg-white/90" : "bg-stone-400"
+                        }`}
+                        style={{ animationDelay: `${d * 0.15}s` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -114,11 +284,11 @@ export function ChatArt() {
 export function BarsArt() {
   const bars = [38, 62, 48, 80, 58, 92, 70];
   return (
-    <div aria-hidden="true" className="flex h-full items-end justify-center gap-2 p-5">
+    <div aria-hidden="true" className="flex h-full items-end justify-center gap-3 px-8 pb-10 pt-8">
       {bars.map((h, i) => (
         <div
           key={i}
-          className={`wv-bar w-5 rounded-sm ${i === 5 ? "bg-accent" : "bg-[#284B63]"}`}
+          className={`wv-bar w-7 rounded-t-sm sm:w-8 ${i === 5 ? "bg-accent" : "bg-[#284B63]"}`}
           style={{ height: `${h}%`, animationDelay: `${i * 0.15}s` }}
         />
       ))}
@@ -128,59 +298,73 @@ export function BarsArt() {
 
 export function TrendArt() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 200 120" className="h-full w-full p-4">
-      <polyline
-        points="8,100 45,84 80,88 115,60 150,64 192,28"
-        fill="none"
-        stroke="#3C6E71"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+    <div aria-hidden="true" className="relative h-full w-full">
+      <svg
+        viewBox="0 0 320 120"
+        preserveAspectRatio="none"
+        className="h-full w-full"
+      >
+        <polyline
+          points="10,102 58,86 96,92 140,60 188,66 236,46 288,30 308,24"
+          fill="none"
+          stroke="#3C6E71"
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      <span
+        className="wv-pingdot absolute h-3.5 w-3.5 rounded-full bg-[#284B63]"
+        style={{ left: "calc(96.2% - 7px)", top: "calc(20% - 7px)" }}
       />
-      <circle cx="192" cy="28" r="6" fill="#284B63" className="wv-pingdot" />
-    </svg>
+    </div>
   );
 }
 
 export function RingArt() {
   const c = 2 * Math.PI * 46;
   return (
-    <svg aria-hidden="true" viewBox="0 0 120 120" className="mx-auto h-full p-4">
-      <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="10" />
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 120 120"
+      className="mx-auto h-full py-3"
+    >
+      <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth="12" />
       <circle
         cx="60"
         cy="60"
         r="46"
         fill="none"
         stroke="#3C6E71"
-        strokeWidth="10"
+        strokeWidth="12"
         strokeLinecap="round"
         strokeDasharray={`${0.78 * c} ${c}`}
         transform="rotate(-90 60 60)"
       />
       <g className="wv-orbit" style={{ transformOrigin: "60px 60px" }}>
-        <circle cx="60" cy="14" r="5" fill="#ffffff" stroke="#3C6E71" strokeWidth="2" />
+        <circle cx="60" cy="14" r="5" fill="#ffffff" stroke="#3C6E71" strokeWidth="2.5" />
       </g>
     </svg>
   );
 }
 
 export function BrowserArt() {
-  const rows = [80, 60, 72];
+  const rows = [84, 66, 78, 52];
   return (
-    <div aria-hidden="true" className="relative h-full overflow-hidden p-5">
-      <div className="h-full rounded-lg border border-black/10 bg-white/80 p-3">
-        <div className="mb-2.5 flex gap-1">
-          <span className="size-1.5 rounded-full bg-black/15" />
-          <span className="size-1.5 rounded-full bg-black/15" />
-          <span className="size-1.5 rounded-full bg-black/15" />
+    <div aria-hidden="true" className="relative h-full overflow-hidden px-5 py-5">
+      <div className="h-full rounded-xl border border-black/10 bg-white/90 p-4">
+        <div className="mb-3 flex gap-1.5">
+          <span className="size-2 rounded-full bg-black/15" />
+          <span className="size-2 rounded-full bg-black/15" />
+          <span className="size-2 rounded-full bg-black/15" />
         </div>
         {rows.map((w, i) => (
-          <div key={i} className="mb-2 flex items-center gap-2">
-            <span className="flex size-3.5 items-center justify-center rounded-full bg-accent text-[9px] font-bold text-white">
+          <div key={i} className="mb-3 flex items-center gap-2.5">
+            <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white">
               ✓
             </span>
-            <div className="h-1.5 rounded bg-black/15" style={{ width: `${w}%` }} />
+            <div className="h-2 rounded bg-black/15" style={{ width: `${w}%` }} />
           </div>
         ))}
       </div>
@@ -191,23 +375,30 @@ export function BrowserArt() {
 
 export function PipeArt() {
   return (
-    <div aria-hidden="true" className="flex h-full items-center justify-center gap-3 p-5">
-      <div className="flex flex-col gap-1.5">
+    <div aria-hidden="true" className="flex h-full items-center justify-center gap-5 px-8">
+      <div className="flex flex-col gap-2.5">
         {[0, 1, 2].map((d) => (
           <span
             key={d}
-            className="wv-blink size-2 rounded-full bg-[#284B63]"
+            className="wv-blink size-3 rounded-full bg-[#284B63]"
             style={{ animationDelay: `${d * 0.25}s` }}
           />
         ))}
       </div>
-      <svg width="44" height="52" viewBox="0 0 44 52" fill="none">
-        <path d="M2 8 L42 26 M2 26 H42 M2 44 L42 26" stroke="#3C6E71" strokeWidth="2" strokeLinecap="round" />
+      <svg width="96" height="72" viewBox="0 0 96 72" fill="none" className="max-w-[34%] flex-1">
+        <path
+          d="M2 14 L94 36 M2 36 H94 M2 58 L94 36"
+          stroke="#3C6E71"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          className="wv-dash-flow"
+        />
       </svg>
-      <div className="w-14 space-y-1.5 rounded-md border border-black/10 bg-white/80 p-2">
-        <div className="h-1.5 w-full rounded bg-black/20" />
-        <div className="h-1.5 w-4/5 rounded bg-black/15" />
-        <div className="h-1.5 w-3/5 rounded bg-accent" />
+      <div className="w-32 space-y-2 rounded-lg border border-black/10 bg-white/90 p-3 shadow-[0_12px_28px_-18px_rgba(0,0,0,0.25)] sm:w-40">
+        <div className="h-2 w-full rounded bg-black/20" />
+        <div className="h-2 w-5/6 rounded bg-black/15" />
+        <div className="h-2 w-4/6 rounded bg-black/15" />
+        <div className="h-2 w-3/6 rounded bg-accent" />
       </div>
     </div>
   );

@@ -140,7 +140,7 @@ export function Services() {
                 follow-ups, data shuffling. Revenue + relationships stay with your team.
               </p>
               <ul className="mt-5 flex flex-wrap gap-1.5" aria-label="Principles">
-                {["Simple + on your tools", "Tested on dummy data", "No hidden API costs"].map((t) => (
+                {["Simple + on your tools", "Tested before your data", "No hidden API costs"].map((t) => (
                   <li
                     key={t}
                     className="rounded-full border border-black/10 bg-black/[0.04] px-3 py-1.5 font-mono text-[11px] text-stone-600"
@@ -249,7 +249,7 @@ export function Services() {
               No subscriptions. No per-run fees.
             </h2>
             <p className="mt-2 max-w-xl text-[15px] text-stone-600">
-              Running costs (hosting, APIs, message fees) passed at cost. No markup.
+              Running costs (hosting, APIs, messaging) passed at cost. No markup.
             </p>
           </Reveal>
           <div className="mt-8 grid gap-4 md:grid-cols-3">

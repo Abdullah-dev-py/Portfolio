@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { SITE } from "@/lib/site";
+import { links } from "@/lib/links";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,30 +19,77 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Abdullah Faisal — systems and websites that fix bottlenecks",
-  description:
-    "Abdullah Faisal builds automation, AI workflows, reporting systems and clean websites for agencies, e-commerce brands and service companies. Karachi, Pakistan · remote.",
-  metadataBase: new URL("https://abdullah.dev"),
+  metadataBase: new URL(SITE.url),
+  title: {
+    default: `${SITE.title} — ${SITE.titleSuffix}`,
+    template: `%s — ${SITE.titleSuffix}`,
+  },
+  description: SITE.description,
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Abdullah Faisal — I fix real business bottlenecks",
-    description:
-      "Automation, AI workflows, reporting systems and websites that remove operational friction.",
     type: "website",
+    siteName: SITE.name,
+    locale: SITE.locale,
+    url: "/",
+    title: `${SITE.title} — ${SITE.titleSuffix}`,
+    description: SITE.description,
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
-  "@type": "Person",
-  name: "Abdullah Faisal",
-  jobTitle: "Systems builder and web developer",
-  address: { "@type": "PostalAddress", addressLocality: "Karachi", addressCountry: "PK" },
-  email: "mailto:abdulahfaysal04@gmail.com",
-  sameAs: [
-    "https://www.instagram.com/abdulah._faisal_/",
-    "https://www.linkedin.com/in/abdullah-faisal-bb0263282/",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${SITE.url}/#website`,
+      url: `${SITE.url}/`,
+      name: SITE.name,
+      inLanguage: "en-US",
+      description:
+        "Automation systems, AI workflows, reporting pipelines and clean websites that remove real business bottlenecks.",
+      publisher: { "@id": `${SITE.url}/#person` },
+    },
+    {
+      "@type": "Person",
+      "@id": `${SITE.url}/#person`,
+      name: SITE.name,
+      url: `${SITE.url}/`,
+      email: links.email,
+      jobTitle: "Systems builder and web developer",
+      sameAs: [links.linkedin, links.instagram],
+      knowsAbout: [
+        "n8n",
+        "automation",
+        "AI workflows",
+        "reporting systems",
+        "web development",
+      ],
+    },
+    {
+      "@type": "ProfessionalService",
+      "@id": `${SITE.url}/#service`,
+      name: SITE.name,
+      url: `${SITE.url}/`,
+      email: links.email,
+      description:
+        "Automation systems, AI chat agents, reporting pipelines and websites for agencies, e-commerce brands and service companies.",
+      founder: { "@id": `${SITE.url}/#person` },
+      areaServed: "Worldwide",
+      sameAs: [links.linkedin, links.instagram],
+      knowsAbout: [
+        "n8n",
+        "automation",
+        "AI workflows",
+        "reporting systems",
+        "web development",
+      ],
+    },
   ],
-  knowsAbout: ["n8n", "automation", "AI workflows", "reporting systems", "web development"],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

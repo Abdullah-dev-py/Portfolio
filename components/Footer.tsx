@@ -12,6 +12,7 @@ export function Footer() {
           <Link className="hover:text-stone-900" href="/">Home</Link>
           <Link className="hover:text-stone-900" href="/work">Work</Link>
           <Link className="hover:text-stone-900" href="/services">Services</Link>
+          <Link className="hover:text-stone-900" href="/privacy">Privacy</Link>
           <a className="hover:text-stone-900" href={links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </nav>
       </div>

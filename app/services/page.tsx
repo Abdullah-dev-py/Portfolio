@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import { Services } from "@/components/Services";
-import { Skills } from "@/components/Skills";
 import { Connect } from "@/components/Connect";
 
 export const metadata: Metadata = {
-  title: "Services — automation systems that fix real bottlenecks",
+  title: "Automation & AI services",
   description:
-    "Agency retainers, freelancer follow-ups, WhatsApp sales agents, COD confirmation, fee tracking, speed-to-lead, team ops. Simple builds on tools you already use.",
+    "Agency retainers, freelancer follow-ups, chat agents, order confirmations, invoice tracking and team ops — practical builds on the tools you already use.",
+  alternates: { canonical: "/services" },
+  openGraph: {
+    url: "/services",
+    title: "Automation & AI services — Abdullah Faisal",
+    description:
+      "Agency retainers, freelancer follow-ups, chat agents, order confirmations, invoice tracking and team ops — practical builds on the tools you already use.",
+  },
 };
 
 export default function ServicesPage() {
   return (
     <div className="pt-16">
       <Services />
-      <Skills />
       <Connect />
     </div>
   );

@@ -51,25 +51,40 @@ export function AgencyArt() {
   );
 }
 
-/* 02 — Solo: proposal nudges (live type-and-send chat, endless feed) */
-type ChatMsg = { text: string; check: string; teal: boolean };
+/* 02 — Solo: everyday two-way chat, WhatsApp/Instagram-like.
+   Endless conveyor: a typing bubble slides in on the correct side, then
+   pops into its message as the top message slides out of the fade mask.
+   No reset, no ending. */
+type ChatMsg = { text: string; check?: string; mine: boolean };
 const CHAT_SCRIPT: ChatMsg[] = [
-  { text: "Proposal sent", check: "✓✓", teal: false },
-  { text: "Day 3 → sent", check: "✓✓", teal: false },
-  { text: "Day 7 → sent", check: "", teal: true },
+  { text: "Hi! Quick question.", mine: false },
+  { text: "Sure — ask anything.", mine: true, check: "✓✓" },
+  { text: "Can you start this week?", mine: false },
+  { text: "Yes — details sent.", mine: true, check: "✓✓" },
+  { text: "Perfect, thank you!", mine: false },
+  { text: "Anytime.", mine: true, check: "✓✓" },
 ];
 type ChatItem = { id: number; kind: "msg" | "typing"; m: ChatMsg };
-const CHAT_PITCH = 72; // h-16 bubble + 8px gap
+const CHAT_PITCH = 50; // h-11 bubble + 6px gap
+
+function bubbleCls(m: ChatMsg) {
+  return m.mine
+    ? "self-end rounded-xl rounded-br-[4px] bg-accent"
+    : "self-start rounded-xl rounded-bl-[4px] border border-black/10 bg-white";
+}
 
 function ChatBubbleBody({ m }: { m: ChatMsg }) {
   return (
-    <>
-      <div className={`h-1.5 rounded ${m.teal ? "w-2/3 bg-white/80" : "w-3/4 bg-white/70"}`} />
-      <div className={`mt-1 flex items-center gap-1 font-mono text-[9px] ${m.teal ? "text-white/80" : "text-white/70"}`}>
-        <span>{m.text}</span>
-        {m.check && <span className="text-white">{m.check}</span>}
-      </div>
-    </>
+    <div
+      className={`flex items-center gap-1.5 ${m.mine ? "text-white" : "text-stone-700"}`}
+    >
+      <span className="whitespace-nowrap text-[11px] font-medium leading-none">
+        {m.text}
+      </span>
+      {m.check && (
+        <span className="font-mono text-[9px] text-white/75">{m.check}</span>
+      )}
+    </div>
   );
 }
 
@@ -89,11 +104,11 @@ export function SoloArt() {
     const iv = window.setInterval(() => {
       const id = nextId.current++;
       const m = CHAT_SCRIPT[id % CHAT_SCRIPT.length];
-      // typing indicator slides in below the fold…
+      // typing bubble slides in below the fold, on the sender's side…
       setItems((prev) => [...prev, { id, kind: "typing", m }]);
       setSliding(true);
       timeout = window.setTimeout(() => {
-        // …then the sent text pops in as the top message scrolls away
+        // …then the sent text pops in as the top message slides away
         setItems((prev) => prev.slice(1).map((it) => (it.id === id ? { ...it, kind: "msg" } : it)));
         setSliding(false);
       }, 680);
@@ -107,12 +122,9 @@ export function SoloArt() {
   if (reduce) {
     return (
       <Shell>
-        <div className="w-full max-w-[240px] space-y-2">
-          {CHAT_SCRIPT.map((m) => (
-            <div
-              key={m.text}
-              className={`${m.teal ? "ml-auto w-3/5 rounded-xl rounded-br-sm bg-accent" : "w-4/5 rounded-xl rounded-bl-sm bg-[#284B63]"} h-16 p-2.5`}
-            >
+        <div className="flex w-full max-w-[240px] flex-col gap-1.5">
+          {CHAT_SCRIPT.slice(0, 4).map((m) => (
+            <div key={m.text} className={`${bubbleCls(m)} flex h-11 items-center px-3`}>
               <ChatBubbleBody m={m} />
             </div>
           ))}
@@ -123,43 +135,45 @@ export function SoloArt() {
 
   return (
     <Shell>
-      <div className="relative h-[208px] w-full max-w-[240px] overflow-hidden">
+      <div className="relative h-[208px] w-full max-w-[240px] overflow-hidden [mask-image:linear-gradient(to_bottom,transparent,black_18px,black_calc(100%-14px),transparent)]">
         <div
           style={{
             transform: sliding ? `translateY(-${CHAT_PITCH}px)` : "translateY(0)",
             transition: sliding ? "transform 680ms cubic-bezier(0.16,1,0.3,1)" : "none",
           }}
         >
-          <div className="flex h-max flex-col">
-          {items.map((it) => (
-            <div key={it.id} className="pb-2">
-              <div
-                className={`${it.m.teal ? "ml-auto w-3/5 rounded-xl rounded-br-sm bg-accent" : "w-4/5 rounded-xl rounded-bl-sm bg-[#284B63]"} relative h-16`}
-              >
-                <div
-                  className={`absolute inset-0 flex items-center justify-center gap-1 transition-opacity duration-300 ${
-                    it.kind === "typing" ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  {[0, 1, 2].map((d) => (
-                    <span
-                      key={d}
-                      className="wv-typing-dot size-1.5 rounded-full bg-white"
-                      style={{ animationDelay: `${d * 0.15}s` }}
-                    />
-                  ))}
-                </div>
-                <div
-                  className={`absolute inset-0 p-2.5 transition-all duration-300 ${
-                    it.kind === "typing" ? "scale-95 opacity-0" : "scale-100 opacity-100"
-                  }`}
-                >
-                  <ChatBubbleBody m={it.m} />
+          <div className="flex h-max flex-col gap-1.5">
+            {items.map((it) => (
+              <div key={it.id} className="flex">
+                <div className={`${bubbleCls(it.m)} relative flex h-11 w-fit items-center`}>
+                  {/* message text — in flow, defines the bubble's width */}
+                  <div
+                    className={`flex items-center px-3 transition-all duration-300 ${
+                      it.kind === "typing" ? "scale-95 opacity-0" : "scale-100 opacity-100"
+                    }`}
+                  >
+                    <ChatBubbleBody m={it.m} />
+                  </div>
+                  {/* typing indicator — sits in the same slot, side-colored */}
+                  <div
+                    className={`absolute inset-0 flex items-center px-3 transition-opacity duration-300 ${
+                      it.kind === "typing" ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    {[0, 1, 2].map((d) => (
+                      <span
+                        key={d}
+                        className={`wv-typing-dot size-1.5 rounded-full ${
+                          it.m.mine ? "bg-white/90" : "bg-stone-400"
+                        }`}
+                        style={{ animationDelay: `${d * 0.15}s` }}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </div>
       </div>
     </Shell>
